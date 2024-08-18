@@ -1,0 +1,5 @@
+stenography
+
+---------------------- Steghide ----------------------
+Steghide extract -sf file.jpg -p <fileout>
+steghide --info <file>

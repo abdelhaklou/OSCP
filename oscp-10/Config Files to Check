@@ -1,0 +1,16 @@
+Listing of config files to check for username/passwords/database info.
+
+Wordpress Config - username/password/db info
+  # cat /var/www/html/wp-config.php
+  
+Wordpress db config
+  wp-config-sample.php
+  
+  
+nginx config file
+  /etc/nginx/sites-available/default
+    Look for .htpasswd file
+      USERNAME:$apr1$<HASH>
+
+Bash History
+  .bash_history
